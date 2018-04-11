@@ -1,8 +1,6 @@
 # Fakerize
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/fakerize`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
+Replace all personal data from your models with faker-generated ones.
 
 ## Installation
 
@@ -22,7 +20,35 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+Create a subclass of Faker::Model and specify columns you want to fakerize.
+You need to override `default_config` method, for example:
+
+    class Fakerize::Company < Fakerize::Model
+      private
+    
+      def default_config
+        {
+          name: ->() { Faker::Company.name },
+          address: ->() { Faker::Address.street_address }
+        }
+      end
+    end
+
+    # Replace values of `name` and `address` company columns with random ones:
+    Company.find_each do |company|        
+      Fakerize::Company.new(company).perform
+    end
+
+You can also specify methods to be called before save (to remove a carrierwave logo in this case):
+
+    class Fakerize::Company < Fakerize::Model
+      private
+    
+      def before_save_methods
+        [:remove_logo!]
+      end 
+    end 
+
 
 ## Development
 
